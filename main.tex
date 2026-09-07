@@ -1,0 +1,40 @@
+\documentclass[14pt,a4paper]{extreport}
+\input{preamble}
+\input{info}
+
+\DeclareRobustCommand{\BlankField}[1][4cm]{\rule{#1}{0.3pt}}
+\newcommand{\Field}[2][4cm]{\ifdefempty{#2}{\BlankField[#1]}{#2}}
+\newcommand{\BlankBody}[1][1.2cm]{\par\vspace*{#1}}
+\hypersetup{pdftitle={CS Project Document Template},pdfauthor={},pdfsubject={Blank document template},pdfkeywords={}}
+
+\begin{document}
+\input{frontmatter/cover}
+\input{frontmatter/cover}
+
+\clearpage
+\renewcommand{\thepage}{\thaialph{\value{page}}}
+\setcounter{page}{1}
+\input{frontmatter/abstract-th}
+\input{frontmatter/abstract-en}
+\input{frontmatter/acknowledgements}
+\input{frontmatter/contents}
+
+\clearpage
+\pagenumbering{arabic}
+\input{chapters/01-introduction}
+\input{chapters/02-background}
+\input{chapters/03-methodology}
+\input{chapters/04-results}
+\input{chapters/05-conclusion}
+
+\frontsection{เอกสารอ้างอิง}
+\phantomsection\addcontentsline{toc}{chapter}{เอกสารอ้างอิง}
+\ifdefined\TemplateHasReferences
+  \printbibliography[heading=none]
+\else
+  \BlankBody[8cm]
+\fi
+
+\input{chapters/appendix}
+\input{frontmatter/author}
+\end{document}

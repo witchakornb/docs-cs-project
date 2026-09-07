@@ -1,0 +1,23 @@
+\clearpage
+\phantomsection\addcontentsline{toc}{chapter}{สารบัญ}
+\renewcommand{\toccontlabel}{สารบัญ}
+\renewcommand{\cftaftertoctitle}{\hfill\thispagestyle{plain}\global\lstconttrue\contlistpage\\[18pt]\hspace*{0pt}\hfill{\normalfont\fontsize{14}{18}\selectfont หน้า}}
+\tableofcontents
+\global\lstcontfalse
+\pagestyle{fancy}
+
+\clearpage
+\phantomsection\addcontentsline{toc}{chapter}{สารบัญภาพ}
+\renewcommand{\toccontlabel}{สารบัญภาพ}
+\renewcommand{\cftafterloftitle}{\hfill\thispagestyle{plain}\global\lstconttrue\contlistpage\\[18pt]\hspace*{0pt}\hfill{\normalfont\fontsize{14}{18}\selectfont หน้า}}
+\listoffigures
+\global\lstcontfalse
+\pagestyle{fancy}
+
+\clearpage
+\phantomsection\addcontentsline{toc}{chapter}{สารบัญตาราง}
+\renewcommand{\toccontlabel}{สารบัญตาราง}
+\renewcommand{\cftafterlottitle}{\hfill\thispagestyle{plain}\global\lstconttrue\contlistpage\\[18pt]\hspace*{0pt}\hfill{\normalfont\fontsize{14}{18}\selectfont หน้า}}
+\listoftables
+\global\lstcontfalse
+\pagestyle{fancy}

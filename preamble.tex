@@ -1,0 +1,362 @@
+% ============================================================
+%  preamble.tex — Packages & Formatting Config
+%  แม่แบบเอกสารโครงงาน สาขาวิชาวิทยาการคอมพิวเตอร์
+% ============================================================
+
+% ─── Encoding & Font ─────────────────────────────────────────
+\usepackage{fontspec}
+\usepackage{polyglossia}
+\setmainlanguage{thai}
+\setotherlanguage{english}
+\setmainfont{TH Sarabun New}[
+  BoldFont       = {TH Sarabun New Bold},
+  ItalicFont     = {TH Sarabun New Italic},
+  BoldItalicFont = {TH Sarabun New Bold Italic},
+  Scale          = 1.0
+]
+\IfFontExistsTF{Courier New}{\setmonofont{Courier New}}{\setmonofont{Latin Modern Mono}}
+\newfontfamily\thaifonttt{TH Sarabun New}
+
+% ─── Thai Alphabetical Page Numbering ────────────────────────
+% ใช้แทน roman สำหรับส่วนนำ: ก ข ค ง จ ฉ ช ซ ...
+\newcommand{\thaialph}[1]{%
+  \ifcase#1%
+  \or ก\or ข\or ค\or ง\or จ%
+  \or ฉ\or ช\or ซ\or ฌ\or ญ%
+  \or ฎ\or ฏ\or ฐ\or ฑ\or ฒ%
+  \or ณ\or ด\or ต\or ถ\or ท%
+  \or ธ\or น\or บ\or ป\or ผ%
+  \or ฝ\or พ\or ฟ\or ภ\or ม%
+  \else ?\fi%
+}
+
+% ─── Page Layout ─────────────────────────────────────────────
+\usepackage[
+  a4paper,
+  top        = 3.81cm,  % ขอบบน 1.5 นิ้ว (body เริ่มที่นี่ เพราะใช้ includehead)
+  bottom     = 2.54cm,  % ขอบล่าง 1.0 นิ้ว
+  left       = 3.81cm,  % ขอบซ้าย 1.5 นิ้ว
+  right      = 2.54cm,  % ขอบขวา 1.0 นิ้ว
+  headheight = 18pt,    % ความสูง header box (~0.635 ซม.)
+  headsep    = 1.27cm,  % ระยะ header ถึง body
+                        % → header bottom = top − headsep = 3.81 − 1.27 = 2.54 ซม. (1 นิ้ว) จากขอบบน ✓
+                        % → body เริ่มที่ top = 3.81 ซม. (1.5 นิ้ว) จากขอบบน ✓
+]{geometry}
+% \usepackage{showframe}  % DEBUG: แสดงเส้นขอบ margin/header/body/footer
+
+% ─── Line Spacing & Paragraph ────────────────────────────────
+\usepackage{setspace}
+\usepackage{indentfirst}   % ย่อหน้าแรกหลัง heading ก็ indent ด้วย
+\onehalfspacing
+\setlength{\parindent}{1.27cm}
+\setlength{\parskip}{0pt}
+% ตัดบรรทัดภาษาไทย (XeTeX ICU) → ชิดขอบขวาสม่ำเสมอ
+\XeTeXlinebreaklocale "th"
+\XeTeXlinebreakskip = 0pt plus 0.5pt minus 0.5pt
+\XeTeXlinebreakpenalty = 0
+% ยืดหยุ่นกับบรรทัดที่มีคำอังกฤษยาว
+\tolerance=2000
+\emergencystretch=1.5em
+\hbadness=2000
+
+% ─── Headers & Page Numbers ──────────────────────────────────
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[R]{\fontsize{14}{16}\selectfont\thepage}  % เลขหน้ามุมบนขวา 14pt ตาม KKU format
+\renewcommand{\headrulewidth}{0pt}
+% ไม่แสดงเลขหน้าในหน้าแรกของบท (plain style)
+\fancypagestyle{plain}{
+  \fancyhf{}
+  \renewcommand{\headrulewidth}{0pt}
+}
+
+% ─── Continuation title for multi-page lists (TOC/LOT/LOF) ───
+% ใส่ "(ต่อ)" ลงใน body ของหน้าถัดไป ไม่ใช่ header
+\newcommand{\toccontlabel}{สารบัญ}
+\newif\iflstcont \lstcontfalse
+
+\newcommand{\contlistpage}{
+  \afterpage{%
+    \iflstcont
+      \thispagestyle{fancy}%
+      \begin{center}%
+        \fontsize{18}{22}\selectfont\bfseries \toccontlabel\ (ต่อ)%
+      \end{center}%
+      \noindent\hspace*{0pt}\hfill{\normalfont\fontsize{14}{18}\selectfont หน้า}%
+      \vspace{6pt}%
+      \contlistpage
+    \fi
+  }%
+}
+
+% pagestyle สำหรับหน้าแนวนอน (Landscape)
+% physical top-right → มุมล่างขวาเมื่ออ่านในแนวนอน ← ตาม KKU format: เลขหน้ามุมบนขวา
+\fancypagestyle{lscaped}{
+  \fancyhf{}
+  \fancyhead[R]{\thepage}
+  \renewcommand{\headrulewidth}{0pt}
+  \renewcommand{\footrulewidth}{0pt}
+}
+
+% ─── Chapter / Section Formatting ────────────────────────────
+\usepackage{titlesec}
+
+% กว้าง box เลข section = \parindent เสมอ → ชื่อตรงกับย่อหน้า
+\newlength{\sechangindent}
+\setlength{\sechangindent}{\parindent}   % 1.27cm
+
+% บทที่: 18pt หนา, จัดกึ่งกลาง — เลขบทและชื่อบทคนละบรรทัด
+\titleformat{\chapter}[block]
+  {\centering\fontsize{18}{22}\selectfont\bfseries}
+  {บทที่\ \thechapter}{0pt}{\\\centering}
+  [\global\setlength{\parindent}{\sechangindent}]
+\titlespacing{\chapter}{0pt}{-\topskip}{18pt}
+
+% Section: 16pt หนา
+\titleformat{\section}[hang]
+  {\fontsize{16}{20}\selectfont\bfseries}
+  {\makebox[\sechangindent][l]{\thesection}}{0pt}{}
+  [\global\setlength{\parindent}{\sechangindent}]
+\titlespacing{\section}{0pt}{12pt}{6pt}
+
+% Subsection: 14pt หนา
+\titleformat{\subsection}[hang]
+  {\fontsize{14}{18}\selectfont\bfseries}
+  {\makebox[\sechangindent][l]{\thesubsection}}{0pt}{}
+  [\global\setlength{\parindent}{\dimexpr2\sechangindent\relax}]
+\titlespacing{\subsection}{\sechangindent}{10pt}{4pt}
+
+% Subsection ไม่หนา — ใช้ \subsectionmd{ชื่อ} สำหรับกรณีพิเศษ
+\newcommand{\subsectionmd}[1]{%
+  \titleformat{\subsection}[hang]%
+    {\fontsize{14}{18}\selectfont}%
+    {\makebox[\sechangindent][l]{\thesubsection}}{0pt}{}%
+    [\global\setlength{\parindent}{\dimexpr2\sechangindent\relax}]%
+  \titlespacing{\subsection}{\sechangindent}{10pt}{4pt}%
+  \subsection{#1}%
+  \titleformat{\subsection}[hang]%
+    {\fontsize{14}{18}\selectfont\bfseries}%
+    {\makebox[\sechangindent][l]{\thesubsection}}{0pt}{}%
+    [\global\setlength{\parindent}{\dimexpr2\sechangindent\relax}]%
+  \titlespacing{\subsection}{\sechangindent}{10pt}{4pt}%
+}
+
+% Subsubsection: 14pt ปกติ — ใช้ format (1), (2), (3)
+\setcounter{secnumdepth}{3}  % ให้ \subsubsection มีเลขลำดับด้วย
+\renewcommand{\thesubsubsection}{(\arabic{subsubsection})}
+
+% คำนวณระยะออฟเซตให้ (2.1) ตรงกับอักษรตัวแรกของข้อความระดับ 3
+\newlength{\subsuboffset}
+\settowidth{\subsuboffset}{\fontsize{14}{18}\selectfont (0)\hspace{1em}}
+
+\titleformat{\subsubsection}[hang]
+  {\fontsize{14}{18}\selectfont}
+  {\thesubsubsection}{1em}{}
+  [\global\setlength{\parindent}{\dimexpr2\sechangindent+\subsuboffset\relax}]
+\titlespacing{\subsubsection}{\dimexpr2\sechangindent\relax}{8pt}{4pt}
+% reset เลข subsubsection ทุกครั้งที่ขึ้น subsection ใหม่
+\makeatletter
+\@addtoreset{subsubsection}{subsection}
+\makeatother
+
+% Subsubsubsection (ระดับ 4): 14pt ปกติพิมพ์ (N.N)
+% สำหรับผู้ใช้ที่ต้องการใช้ \subsubsubsection
+\newcommand{\subsubsubsection}[1]{\paragraph{#1}}
+\setcounter{secnumdepth}{4}  % ให้ \paragraph มีเลขลำดับระดับ 4
+\renewcommand{\theparagraph}{(\arabic{subsubsection}.\arabic{paragraph})}
+\titleformat{\paragraph}[runin]
+  {\fontsize{14}{18}\selectfont}
+  {\theparagraph}{1em}{}
+\titlespacing{\paragraph}{\dimexpr2\sechangindent+\subsuboffset\relax}{8pt}{4pt}
+\makeatletter
+\@addtoreset{paragraph}{subsubsection}
+\makeatother
+
+% Subsubsection ไม่มีลำดับ — ใช้ \subsubsectionmd{ชื่อ} สำหรับกรณีพิเศษ
+\newcommand{\subsubsectionmd}[1]{%
+  \titleformat{\subsubsection}[hang]%
+    {\fontsize{14}{18}\selectfont}%
+    {}{0pt}{}%
+    [\global\setlength{\parindent}{\dimexpr2.675\sechangindent\relax}]%
+  \titlespacing{\subsubsection}{\dimexpr2\sechangindent\relax}{8pt}{4pt}%
+  \subsubsection*{#1}%
+  \titleformat{\subsubsection}[hang]%
+    {\fontsize{14}{18}\selectfont}%
+    {\makebox[\sechangindent][l]{\thesubsubsection}}{0pt}{}%
+    [\global\setlength{\parindent}{\dimexpr2\sechangindent\relax}]%
+  \titlespacing{\subsubsection}{\dimexpr2\sechangindent\relax}{8pt}{4pt}%
+}
+
+% ─── Table of Contents ───────────────────────────────────────
+\usepackage{tocloft}
+\renewcommand{\contentsname}{สารบัญ}
+% polyglossia เรียก \captionsthai ทุกครั้งที่เปลี่ยนภาษา → ต้อง patch ที่ตรงนี้
+\makeatletter
+\appto\captionsthai{%
+  \def\listtablename{สารบัญตาราง}%
+  \def\listfigurename{สารบัญภาพ}%
+  \def\figurename{ภาพที่}%
+}
+\makeatother
+
+% รูปแบบหัวข้อหน้าสารบัญ (18pt หนา จัดกึ่งกลาง% สำหรับสารบัญ (TOC)
+\setcounter{tocdepth}{1} % แสดงในสารบัญถึง section (4.1) ซ่อน subsection (4.2.1) ลงไป
+\setcounter{secnumdepth}{4} % ยังคงให้มีเลขหมายหัวข้อในเอกสารถึงระดับ 4 (1.1.1.1)
+
+\renewcommand{\cfttoctitlefont}{\hfill\fontsize{18}{22}\selectfont\bfseries}
+\renewcommand{\cftaftertoctitle}{\hfill\mbox{}\\[18pt]\hfill หน้า}
+\setlength{\cftbeforetoctitleskip}{-\topskip}
+\setlength{\cftaftertoctitleskip}{2pt}
+
+\renewcommand{\cftlottitlefont}{\hfill\fontsize{18}{22}\selectfont\bfseries}
+\renewcommand{\cftafterlottitle}{\hfill\\[18pt]\hfill หน้า}
+\setlength{\cftbeforelottitleskip}{-\topskip}
+\setlength{\cftafterlottitleskip}{2pt}
+
+\renewcommand{\cftloftitlefont}{\hfill\fontsize{18}{22}\selectfont\bfseries}
+\renewcommand{\cftafterloftitle}{\hfill\\[18pt]\hfill หน้า}
+\setlength{\cftbeforeloftitleskip}{-\topskip}
+\setlength{\cftafterloftitleskip}{2pt}
+
+% รูปแบบบทในสารบัญ → "บทที่ X  ชื่อบท"
+\newlength{\chapprenumwd}
+\settowidth{\chapprenumwd}{\bfseries บทที่\ }
+\newlength{\secnumwd}
+\settowidth{\secnumwd}{5.5\enskip}
+\newlength{\subsecnumwd}
+\settowidth{\subsecnumwd}{5.5.5\enskip}
+
+\renewcommand{\cftchappresnum}{บทที่\ }
+\renewcommand{\cftchapaftersnum}{}
+\setlength{\cftchapnumwidth}{\sechangindent}   % ชื่อบทเริ่มตรงเส้นซ้าย 1.27cm
+
+\setlength{\cftsecindent}{\sechangindent}   % ตรงกับย่อหน้า 1.27cm
+\setlength{\cftsecnumwidth}{\secnumwd}
+
+\setlength{\cftsubsecindent}{\dimexpr\sechangindent+\secnumwd\relax}
+\setlength{\cftsubsecnumwidth}{\subsecnumwd}
+
+\setlength{\cftsubsubsecindent}{\dimexpr\sechangindent+\secnumwd+\subsecnumwd\relax}
+\setlength{\cftsubsubsecnumwidth}{1em}
+
+\renewcommand{\cftchapfont}{\mdseries}
+\renewcommand{\cftchappagefont}{\mdseries}
+\renewcommand{\cftsecfont}{\mdseries}
+\renewcommand{\cftsecpagefont}{\mdseries}
+\renewcommand{\cftsubsecfont}{\mdseries}
+\renewcommand{\cftsubsecpagefont}{\mdseries}
+\setlength{\cftbeforechapskip}{0pt}
+\renewcommand{\cftchapleader}{\cftdotfill{\cftdotsep}}
+
+% สารบัญตาราง / สารบัญภาพ
+\newlength{\tabnumprewd}
+\settowidth{\tabnumprewd}{ตารางที่\ }
+\newlength{\fignumprewd}
+\settowidth{\fignumprewd}{ภาพที่\ }
+
+% ซ่อน addvspace ระหว่างบทใน LOF และ LOT → รายการต่อเนื่องกัน
+\makeatletter
+\patchcmd{\@chapter}{\addtocontents{lof}{\protect\addvspace{10\p@}}}{}{}{}
+\patchcmd{\@chapter}{\addtocontents{lot}{\protect\addvspace{10\p@}}}{}{}{}
+\makeatother
+
+\renewcommand{\cfttabpresnum}{ตารางที่\ }
+\renewcommand{\cfttabaftersnum}{}
+\setlength{\cfttabindent}{0pt}
+\setlength{\cfttabnumwidth}{\dimexpr\tabnumprewd+\secnumwd\relax}
+
+\renewcommand{\cftfigpresnum}{ภาพที่\ }
+\renewcommand{\cftfigaftersnum}{}
+\setlength{\cftfigindent}{0pt}
+\setlength{\cftfignumwidth}{\dimexpr\fignumprewd+\secnumwd\relax}
+
+% ─── Figures & Tables ────────────────────────────────────────
+\usepackage{graphicx}
+\usepackage{float}
+\usepackage{booktabs}
+\setlength{\fboxsep}{0pt}
+\setlength{\fboxrule}{0.5pt}
+% รูปภาพในเนื้อหา — ใส่ขอบอัตโนมัติ
+\newcommand{\figimg}[2][]{\fbox{\includegraphics[#1]{#2}}}
+\usepackage{caption}
+\captionsetup[table]{position=top, labelsep=space, font=normalsize, labelfont=bf, singlelinecheck=false, justification=justified, skip=\baselineskip}
+\captionsetup[figure]{position=bottom, labelsep=space, font=normalsize, labelfont=bf}
+\renewcommand{\tablename}{ตารางที่}
+\renewcommand{\figurename}{ภาพที่}
+
+\usepackage{chngcntr}
+\counterwithout{figure}{chapter} % ให้เลขรูปภาพรัน 1, 2, 3... ต่อเนื่อง
+\counterwithout{table}{chapter}  % ให้เลขตารางรัน 1, 2, 3... ต่อเนื่อง
+
+% ─── Bibliography ────────────────────────────────────────────
+\usepackage[
+  backend  = biber,
+  style    = numeric,
+  sorting  = none,
+  defernumbers = true
+]{biblatex}
+\addbibresource{references.bib}
+
+% ─── ปรับรูปแบบบรรณานุกรม → KKU Number Style ─────────────────
+% ผลลัพธ์: [N] Author. (Year). Title. Note, จาก URL.
+\DeclareFieldFormat{title}{#1}         % ชื่อเรื่อง: ไม่เอียง ไม่มีเครื่องหมายคำพูด
+\DeclareFieldFormat{howpublished}{#1}  % URL ใช้ตามที่กำหนด
+
+\DeclareBibliographyDriver{misc}{%
+  % ชื่อผู้แต่ง/หน่วยงาน
+  \ifnameundef{author}{}{\printnames{author}\addperiod\space}%
+  % ปีพิมพ์ในวงเล็บ
+  \iffieldundef{year}{}{(\printfield{year})\addperiod\space}%
+  % ชื่อเรื่อง
+  \iffieldundef{title}{}{\printfield{title}\addperiod\space}%
+  % note (เช่น ค้นเมื่อ...)
+  \iffieldundef{note}{}{\printfield{note}, \textrm{จาก}\space}%
+  % URL
+  \iffieldundef{howpublished}{}{\printfield{howpublished}\addperiod}%
+  \finentry
+}
+% ใช้รูปแบบเดียวกันกับ @online
+\DeclareBibliographyAlias{online}{misc}
+
+
+% ─── Miscellaneous ───────────────────────────────────────────
+\usepackage{afterpage}
+\usepackage{etoolbox}
+\usepackage{hyperref}
+\hypersetup{
+  colorlinks = false,
+  hidelinks
+}
+\usepackage{array}
+\usepackage{longtable}
+\usepackage{colortbl}
+\usepackage{multirow}
+\usepackage{pdflscape}
+\usepackage{enumitem}
+\usepackage{tikz}
+\usepackage{xcolor}
+\usepackage{listings}
+\lstdefinelanguage{json}{
+  basicstyle=\ttfamily\small,
+  showstringspaces=false,
+  breaklines=true,
+  frame=single,
+  backgroundcolor=\color[gray]{0.97},
+  rulecolor=\color[gray]{0.7},
+  stringstyle=\color[rgb]{0.13,0.54,0.13},
+  morestring=[b]",
+}
+\lstset{language=json}
+\usetikzlibrary{shapes.geometric, shapes.multipart, arrows.meta, positioning, fit, calc, backgrounds, shadows}
+
+% ─── Custom Commands ─────────────────────────────────────────
+% ชื่อส่วนประกอบต่าง ๆ (18pt หนา จัดกึ่งกลาง)
+\newcommand{\frontsection}[1]{%
+  \clearpage
+  \thispagestyle{plain}
+  \begin{center}
+    \fontsize{18}{22}\selectfont\bfseries #1
+  \end{center}
+  \vspace{12pt}
+}
