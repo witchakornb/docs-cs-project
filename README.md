@@ -54,3 +54,64 @@ bash build.sh
 การปรับฟอนต์ ระยะขอบ หัวข้อ เลขหน้า และรูปแบบเอกสารอ้างอิงอยู่ใน `preamble.tex` หากต้องการดูข้อมูลใน Overleaf ให้เลือก compiler เป็น XeLaTeX และอัปโหลดฟอนต์/ปรับ `fontspec` ตามการติดตั้งของสภาพแวดล้อมนั้น
 
 Repository นี้แยกจากต้นฉบับโดยไม่นำประวัติ Git ภาพโครงงาน PDF เดิม ไฟล์สำรอง หรือไฟล์ build เดิมเข้ามา
+
+## Fork และแก้ไขแม่แบบ
+
+หากต้องการนำแม่แบบไปเขียนรายงานของตนเอง ให้สร้างสำเนา (fork) บน GitHub ก่อน เพื่อให้แก้ไขใน repository ของตนเองได้โดยไม่กระทบแม่แบบต้นทาง
+
+1. เปิด [repository ต้นทาง](https://github.com/witchakornb/docs-cs-project) แล้วกด **Fork** มุมขวาบน เลือกบัญชีหรือองค์กรที่จะเก็บสำเนา
+2. ในหน้า repository ที่ fork แล้ว กดปุ่ม **Code** คัดลอก URL แบบ HTTPS จากนั้น clone ลงเครื่อง โดยแทนที่ `<username>` ด้วยชื่อบัญชี GitHub ของตนเอง:
+
+   ```sh
+   git clone https://github.com/<username>/docs-cs-project.git
+   cd docs-cs-project
+   ```
+
+3. เพิ่ม repository ต้นทางเป็น `upstream` เพื่อรับการปรับปรุงของแม่แบบในภายหลัง และตรวจสอบว่า URL ถูกต้อง:
+
+   ```sh
+   git remote add upstream https://github.com/witchakornb/docs-cs-project.git
+   git remote -v
+   ```
+
+4. สร้าง branch สำหรับงานที่จะแก้ แล้วแก้เฉพาะข้อมูลของรายงานใน `info.tex`, `frontmatter/`, `chapters/` และ `references.bib` ตามลำดับงานที่อธิบายข้างต้น:
+
+   ```sh
+   git switch -c report/my-project
+   ```
+
+   หลีกเลี่ยงการแก้ `preamble.tex`, `main.tex` และสคริปต์ build หากยังต้องการใช้รูปแบบมาตรฐานของแม่แบบ การปรับรูปแบบเอกสารควรแยกเป็น commit ของตนเองเพื่อให้ย้อนกลับและตรวจสอบได้ง่าย
+
+5. Build และเปิดตรวจ PDF ทุกครั้งก่อนบันทึกงาน:
+
+   ```sh
+   bash build.sh
+   ```
+
+   บน Windows ให้ใช้ `build.bat` แทน ตรวจว่าเนื้อหา สารบัญ เลขหน้า ตาราง และรายการอ้างอิงใน `output/pdf/docs-cs-project-template.pdf` ถูกต้องก่อนทำ commit
+
+6. บันทึกและส่งงานขึ้น fork ของตนเอง:
+
+   ```sh
+   git status
+   git add info.tex frontmatter chapters references.bib
+   git commit -m "Write project report"
+   git push -u origin report/my-project
+   ```
+
+   ตรวจรายการไฟล์จาก `git status` ก่อน `git add` เสมอ ไม่ต้องเพิ่มโฟลเดอร์ `build/` หรือ `tmp/` เพราะเป็นไฟล์ชั่วคราว หากต้องการเก็บ PDF ฉบับล่าสุดร่วมกับงาน ให้เพิ่ม `output/pdf/docs-cs-project-template.pdf` โดยตั้งใจหลังตรวจไฟล์แล้ว
+
+7. หากต้องส่งการปรับปรุงกลับมายังแม่แบบต้นทาง ให้เปิด **Pull request** จาก branch ใน fork ไปยัง `main` ของ repository ต้นทาง พร้อมอธิบายสิ่งที่เปลี่ยนและแนบผลการ build หากเกี่ยวข้องกับรูปแบบเอกสาร
+
+### อัปเดต fork จากต้นทาง
+
+ก่อนเริ่มแก้ไขรอบใหม่ หรือเมื่อแม่แบบต้นทางมีการเปลี่ยนแปลง ให้ดึง `main` ล่าสุดจาก `upstream` แล้วส่งต่อไปยัง fork ของตนเอง:
+
+```sh
+git switch main
+git fetch upstream
+git merge upstream/main
+git push origin main
+```
+
+หาก Git แจ้ง conflict ให้แก้ส่วนที่มีเครื่องหมาย `<<<<<<<`, `=======`, `>>>>>>>` ให้เหลือเนื้อหาที่ต้องการ จากนั้น build PDF ตรวจอีกครั้ง แล้วจึง `git add`, `git commit` และ `git push` ไม่ควรใช้ `git push --force` กับ branch ที่ทำงานร่วมกับผู้อื่น
