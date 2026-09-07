@@ -19,6 +19,21 @@
 
 ## Build PDF
 
+### Windows
+
+1. ติดตั้ง TeX Live ที่มี XeLaTeX และ Biber
+2. ติดตั้งฟอนต์ TH Sarabun New ทั้ง Regular, Bold, Italic และ Bold Italic
+3. เปิด CMD หรือ PowerShell ใหม่หลังติดตั้ง แล้วเข้าโฟลเดอร์โปรเจกต์
+4. รันคำสั่งต่อไปนี้ ไม่ต้องติดตั้ง Bash หรือ WSL:
+
+```powershell
+.\build.bat
+```
+
+หากขึ้น `Missing dependency` ให้ตรวจว่าโฟลเดอร์โปรแกรมของ TeX Live อยู่ใน `PATH` และลอง `where.exe xelatex` กับ `where.exe biber` ใน terminal ใหม่ หาก PDF เปิดค้างอยู่และเขียนทับไม่ได้ ให้ปิด PDF แล้ว build อีกครั้ง
+
+### macOS / Linux
+
 ติดตั้ง TeX Live หรือ MacTeX ที่มี XeLaTeX และ Biber พร้อมฟอนต์ TH Sarabun New ทั้ง Regular, Bold, Italic และ Bold Italic แล้วรัน:
 
 ```sh
@@ -34,7 +49,7 @@ bash build.sh
 3. เขียนเนื้อหาใน `chapters/` แล้วแทนที่ `\BlankBody` ด้วยย่อหน้าจริง
 4. เปลี่ยนกรอบภาพและตารางว่างเป็นข้อมูลของโครงงาน รวมถึงชื่อหัวข้อย่อยและคำบรรยาย
 5. เพิ่มรายการใน `references.bib` และอ้างด้วย `\cite{key}` สคริปต์จะเรียก Biber เมื่อมีรายการอ้างอิง
-6. รัน `bash build.sh` อีกครั้ง
+6. รัน `.\build.bat` บน Windows หรือ `bash build.sh` บน macOS / Linux อีกครั้ง
 
 การปรับฟอนต์ ระยะขอบ หัวข้อ เลขหน้า และรูปแบบเอกสารอ้างอิงอยู่ใน `preamble.tex` หากต้องการดูข้อมูลใน Overleaf ให้เลือก compiler เป็น XeLaTeX และอัปโหลดฟอนต์/ปรับ `fontspec` ตามการติดตั้งของสภาพแวดล้อมนั้น
 
